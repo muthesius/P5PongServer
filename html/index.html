@@ -2,150 +2,59 @@
 	<html>
 	<head>
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
 		<title>Sockettester</title>
 		<script src="js/jquery.js" type="text/javascript" charset="utf-8"></script>
-		<script type="text/javascript" charset="utf-8">
-		
-		$(function(){
-			
-			var ws = null;
-			var host = "192.168.100.1"
-			var port = 3000
-			var socket = "p5websocket"
-			
-			
-			function openSocket(){
-				if(ws!=null)closeSocket();
-				
-				console.log("trying to open a websocket")
-				var _socket = (undefined==socket)?"":"/"+socket
-				
-				ws = new WebSocket("ws://"+host+":"+port+_socket)
-				// When the connection is open, send some data to the server
-				ws.onopen = function () {
-				  console.log("opened")
-				  ws.send('Ping'); // Send the message 'Ping' to the server
-				};
-
-				// oh, it did close
-				ws.onerror = function (e) {
-				  console.log('WebSocket did close ',e);
-				};
-			
-				// Log errors
-				ws.onerror = function (error) {
-				  console.log('WebSocket Error ' + error);
-				};
-
-				// Log messages from the server
-				ws.onmessage = function (e) {
-				  //$('#log').text(e.data+$('#log').text())
-				  //console.log(e.data)
-				  
-				  if (e.data=="go!") {
-					console.log("bang!")
-						shootBall();
-					}
-				};
-				
-				ws.send("login:jens")
-			}
-			
-			function shootBall(){
-				var hit_fuse = false;
-				$('#ball').stop().dequeue().css({left:"-20px",top:$('#spielfeld').height()/2+"px"})
-				.animate({
-									left: $('#spielfeld').width() +"px",
-									top:  $('#spielfeld').height()/2+"px"
-									},
-									{ duration: 1000,
-										easing: 'linear',
-										step: function(){
-											//console.log("step")
-											// HIT TEST!!
-											
-											//console.log( hit_fuse,  $('#ball').position().left > $('#spieler').position().left)
-											
-											if ( !hit_fuse && $('#ball').position().left > $('#spieler').position().left)
-											{
-												var hit = $('#ball').position().top > $('#spieler').position().top && $('#ball').position().top < $('#spieler').position().top + $('#spieler').height();
-												hit = (hit==true) ? 1:0;
-												ws.send("hitest:"+hit);
-												hit_fuse = true;
-											}
-										},
-										complete: function(){
-												$('#ball').css({left:"-20px",top:$('#spielfeld').height()/2+"px"})
-												hit_fuse = false;
-										},
-										queue: false
-									});
-				
-			}
-			
-			$('#spielfeld').bind('mousemove',function(mouseevent){
-				//console.log(mouseevent.pageY)
-				$('#spieler').css('top',(mouseevent.pageY-75)+"px")
-			})
-			
-			
-			function closeSocket(){
-				ws.send('byebye');
-				ws.onclose = function () {}; // disable onclose handler first
-			    ws.close()
-			}
-			
-			$('#close').click(function(){
-				closeSocket();
-			})
-			
-			$('#open').click(function(){
-				openSocket();
-			})
-			
-			window.onbeforeunload = function() {
-				closeSocket()
-			};
-		});
-		</script>
-		
+		<script src="scripts/Vector2D.js" type="text/javascript" charset="utf-8"></script>
+		<script src="scripts/Pong.js" type="text/javascript" charset="utf-8"></script>
 		
 		
 		<style type="text/css" media="screen">
 		  *{
 				margin:0;padding:0;
-/*				-webkit-transition: all 0.04s ease-none;*/
 			}
 			#spielfeld {
 				position:absolute;
-				background-color: gray;
+				background-color: white;
 				width: 100%;
 				height: 100%;
 				overflow: hidden;
 			}
 			
+			#ball,#spieler{
+				-webkit-box-shadow: 1px 1px 1px 2px #969696;
+				-moz-box-shadow: 1px 1px 1px 2px #969696;
+				box-shadow: 1px 1px 1px 2px #969696;
+			}
 			#ball {
-				background-color: red;
+				background-color: black;
 				position:relative;
-				width: 20px;
-				height: 20px;
+				width: 1.5%;
+				height: 1.5%;
 			}
 			#spieler {
-				background-color: yellow; 
-				position:relative;
-				width: 20px;
-				height: 150px;
-				top:0;
+				background-color: black; 
+				position:absolute;
+				width: 1.5%;
+				height: 30%;
+				margin-top:-15%;
+				padding:0;
+				top:0%;
 				left:50%;
 			}
-			
+			#controls {
+				position:absolute;
+				border: 1px solid black;
+				z-index:99;
+			}
+			.hidden {visibility:hidden;}
 		</style>
 	</head>
 	<body>
-		
-		<a id="close" href="#">schlie&szlig;en</a>
-		<a id="open" href="#">&ouml;ffnen</a>
-		
+		<div id="controls">
+			<a id="close" href="#">schlie&szlig;en</a>
+			<a id="open" href="#">&ouml;ffnen</a>
+		</div>
 		<div id="spielfeld">
 			<div id="ball"></div>
 			<div id="spieler"></div>

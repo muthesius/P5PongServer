@@ -1,28 +1,29 @@
 
-
-void broadcastPositions() {
-}
-
-
 float speed   = 1;
 float ball_pos = 0.0;
 
-void updateBall() {
+
+void updateBall(String msg) {
   ball_pos = (ball_pos + speed);
   
   int global_ball_pos = (int)ball_pos;
   
   float local_ball_pos = ball_pos - global_ball_pos;
-  global_ball_pos = spieler.size()!=0 ? global_ball_pos % spieler.size() : 0;
+  global_ball_pos = mannschaft.size()!=0 ? global_ball_pos % mannschaft.size() : 0;
   ball_pos = global_ball_pos + local_ball_pos;
 
-  if (spieler.size()==0) return;
+  if (mannschaft.size()==0) return;
   
-  Spieler s = spieler.get(global_ball_pos);
+  Spieler s = mannschaft.get(global_ball_pos);
   
-  s.send("go!");//{ \"x\":"+local_ball_pos+",\"y\":"+0.5+"}");
-
   
+  String ball_paket = msg.substring(msg.indexOf("!")+1);
+  ball = new Ball(ball_paket,s);
+  
+  println("Ball: "+ball);
+  
+  if (ball==null) return;
+  s.send("go!"+ball);
 }
 
 
@@ -30,39 +31,37 @@ void updateBall() {
 
 void killConnections(){
   socket.broadcast("CLOSE");
-  spieler.clear();
+  mannschaft.clear();
 }
 
 
 String getHostname(WebSocketConnection conn) {
   InetSocketAddress addr = (InetSocketAddress) conn.httpRequest().remoteAddress();
-  //String name = addr.getHostName();
   String name = addr.hashCode()+"";
-  //String name = conn.httpRequest().remoteAddress().toString();
   println(name);
   return name;
 }
 
 
 int zaehler = 0;
-void addSpieler(WebSocketConnection conn) {
-  String search_id = getHostname(conn);
-  boolean contains = false;
-  
-  for (Spieler is : spieler) {
-    if ( search_id.equals(is.id()) ) contains = true;
-  }
-  
-  if(!contains) {
+void addSpieler( WebSocketConnection conn ) {
+  if(!spielerIDVorhanden(getHostname(conn))) {
     Spieler ns = new Spieler(conn, "spieler-"+zaehler);
-    spieler.add(ns);
+    mannschaft.add(ns);
     zaehler++;
     spielerJoined(ns);
   } else {
     println("spieler schon vorhanden");
   }
-  
-  println(spieler);
+  println(mannschaft);
+}
+
+
+boolean spielerIDVorhanden(String id){
+  for (Spieler is : mannschaft){
+    if ( id.equals(is.id()) ) return true;
+  }
+  return false;
 }
 
 
@@ -75,19 +74,15 @@ void entferneSpielerMitConnection(WebSocketConnection con)
 
 Spieler findeSpielerMitConnection(WebSocketConnection con)
 {
-  Spieler foundspieler = null;
-  for (Spieler s : spieler) {
-    if ( getHostname(con).equals(s.id()) ) {
-      foundspieler = s;
-      return foundspieler;
-    }
+  for (Spieler s : mannschaft) {
+    if ( getHostname(con).equals(s.id()) ) return s;
   }
-  return foundspieler;
+  return null;
 }
 
 void removeSpielerFromList(Spieler s)
 {
-  spieler.remove(s);
+  mannschaft.remove(s);
 }
 
 
