@@ -21,6 +21,7 @@ void setup() {
   smooth();
 }
 
+
 void draw() {
   background(30);
   text("Anzahl der Spieler: "+mannschaft.size(), 10, 10+24);

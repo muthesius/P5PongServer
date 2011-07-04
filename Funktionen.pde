@@ -57,7 +57,7 @@ void addSpieler( WebSocketConnection conn ) {
   }
   if (mannschaft.size()==1){
     ball = new Ball("0,0.5,1,0,1",mannschaft.get(0));
-    con.send("go!"+ball); // shoot off the game on the first player
+    conn.send("go!"+ball); // shoot off the game on the first player
   }
   println(mannschaft);
 }

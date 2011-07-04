@@ -62,7 +62,6 @@ $(function(){
     // ws.send("login:jens")
 	}
 	
-	
 	function closeSocket(){
 		hideBall();
 		ws.send('byebye');
