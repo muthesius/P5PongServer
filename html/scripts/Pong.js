@@ -79,11 +79,8 @@ $(function(){
 	hitEvent.hit = false;
 	
 	var ballStep = jQuery.Event('ballStep');
-	
-	
-	$(this).bind('hit',function(event){
-		console.log("hit! successful?",event.hit)
-	})
+	var yy = 0;
+	var yspeed = 0;
 	
 	function hideBall(){
 	  $('#ball').addClass('hidden');
@@ -95,89 +92,70 @@ $(function(){
 	
 	function resetBall(ball){
 		hit_fuse = false;
-
-    // left:"-1.5%",
-    // top:$('#spielfeld').height()/2+"px"
+    stopBall();
+		
+		// wir holen die y relevanten werte aus dem ball objekt
+		yspeed = ball.yspeed;
+		yy     = ball.y*$('#spielfeld').height();
+		
+		// berechne die x-position
     var setleft = (ball.direction>0) ? 0: $('#spielfeld').width()+"px";
     
-    stopBall();
-		$('#ball').css({
-		  left:setleft,
-		  top:ball.y*$('#spielfeld').height()+"px"
-		})
-		
+    // setze den ball
+		$('#ball').css({left:setleft,top:yy+"px"})
 	}
-	
-	var yy = 0;
-	var yspeed = 2;
 	
 	function shootBall(ball){
-    // console.log(ball)
-	  
 		resetBall(ball)
-		yspeed = ball.yspeed;
-		
-		var gotox = (ball.direction<0) ? 0: $('#spielfeld').width()+"px";
-    
-		
-		$('#ball').removeClass('hidden')
-		.animate({
-		            left: gotox
-		         },
-		         {
-								duration: 2000,
-								easing: 'linear',
-								
-								step: function(){
-									
-									$(this).css({top:yy+"px"});
-									if (yy >=  $('#spielfeld').height() ) {yspeed *= -1;}
-                  else if (yy < 0 ) yspeed = Math.abs(yspeed);
-									yy += yspeed;
-									
-									// Der Ball trifft auf den Spieler:
-									if ( !hit_fuse &&
-									    ( $('#ball').position().left > $('#spieler').position().left -10 &&
-									      $('#ball').position().left < $('#spieler').position().left +30) )
-									{
-										// Hat der Spieler den Ball gefangen?
-										var hit = $('#ball').position().top > $('#spieler').position().top && $('#ball').position().top < $('#spieler').position().top + $('#spieler').height();
-										
-										hitEvent.hit = hit;
-										$(this).trigger(hitEvent);
-										
-										hit_fuse = true;
-										if (hit) {
-										  
-										  $(this).stop()
-										  .animate({
-										      left: (ball.direction>0) ? 0: $('#spielfeld').width()+"px"
-										    },{
-										    duration:1000,
-										    easing: 'linear',
-										    complete: ballIstRaus,
-										    step: function(){
-										      
-										      $(this).css({top:yy+"px"});
-        									if ( yy >=  $('#spielfeld').height() ) {yspeed *= -1;}
-                          else if ( yy < 0 ) yspeed = Math.abs(yspeed);
-        									yy += yspeed;
-        									
-										    },
-										    queue: false
-										  })
-									  } // ende hit true
-									}
-								},
-								queue: false,
-								complete: ballIstRaus
-							}) // ENDE animate left (aka x)
+		showBall();
+		var dur = 2000; // die hälfte, wenn der spieler den ball trifft!
+		$('#ball').animate(
+		  {
+        left: (ball.direction<0) ? 0 : $('#spielfeld').width()+"px"
+      },
+      {
+    		duration: dur,
+    		easing: 'linear',
+
+    		step: function(){
+    			updateYpos();
+			
+    			// Der Ball trifft auf den Spieler:
+    			if ( !hit_fuse &&
+    			    ( $('#ball').position().left > $('#spieler').position().left -10 &&
+    			      $('#ball').position().left < $('#spieler').position().left +10) )
+    			{
+    				// Hat der Spieler den Ball gefangen?
+    				var hit = $('#ball').position().top > $('#spieler').position().top && $('#ball').position().top < $('#spieler').position().top + $('#spieler').height();
 				
-	}
-	
+    				hitEvent.hit = hit;
+    				$(this).trigger(hitEvent);
+				
+    				hit_fuse = true;
+    				if (hit) {
+    				  $(this).stop().clearQueue()
+    				  .animate({
+    				      left: (ball.direction>0) ? 0: $('#spielfeld').width()+"px"
+    				    },{
+    					    duration: dur/2,
+    					    easing:   'linear',
+    						  step:     updateYpos,
+    					    complete: ballIstRaus,
+    					    queue:    false
+    				    }
+    				  ) // ENDE animate funktion bei hit
+    			  } // ENDE if hit true
+    			} // ENDE if hit stattgefunden
+    		}, // ENDE standard step für den ball
+    		complete: ballIstRaus,
+    		queue: false
+    	}
+    ) // ENDE standard ball animation
+	} // ENDE shootBall()
 	
 	function ballIstRaus(){
-		stopBall();
+		stopBall(); // stoppe die animation
+		hideBall(); // verstecke den Ball
 		
 		// erstelle ein profil des Balls:
 		var y_pos = $('#ball').position().top/$('#spielfeld').height() || 0.5; // normalize y position
@@ -190,9 +168,17 @@ $(function(){
 		
 		// und schicke das paket mit den ball daten an den server. von dort geht es an den richtigen nachbarn
 		ws.send("finished!"+paket.join(","))
-		
-		
-		
+	}
+	
+	function updateYpos(){
+		$('#ball').css('top', yy);
+		if(yy >= $('#spielfeld').height()){
+		  yspeed *= -1;
+		}
+		else if(yy <0){
+			yspeed = Math.abs(yspeed);
+		}
+	  yy += yspeed;
 	}
 		
 	$('#spielfeld').bind('mousemove',function(mouseevent){
