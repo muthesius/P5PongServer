@@ -122,15 +122,13 @@ $(function(){
 		            left: gotox
 		         },
 		         {
+		.animate({ left: $('#spielfeld').width()+"px" }, {
 								duration: 2000,
 								easing: 'linear',
 								
 								step: function(){
+									dotzen();
 									
-									$(this).css({top:yy+"px"});
-									if (yy >=  $('#spielfeld').height() ) {yspeed *= -1;}
-                  else if (yy < 0 ) yspeed = Math.abs(yspeed);
-									yy += yspeed;
 									
 									// Der Ball trifft auf den Spieler:
 									if ( !hit_fuse &&
@@ -151,16 +149,9 @@ $(function(){
 										      left: (ball.direction>0) ? 0: $('#spielfeld').width()+"px"
 										    },{
 										    duration:1000,
+											step: dotzen,
 										    easing: 'linear',
 										    complete: ballIstRaus,
-										    step: function(){
-										      
-										      $(this).css({top:yy+"px"});
-        									if ( yy >=  $('#spielfeld').height() ) {yspeed *= -1;}
-                          else if ( yy < 0 ) yspeed = Math.abs(yspeed);
-        									yy += yspeed;
-        									
-										    },
 										    queue: false
 										  })
 									  } // ende hit true
@@ -190,7 +181,18 @@ $(function(){
 		ws.send("finished!"+paket.join(","))
 		
 		
+	}
+	
+	function dotzen(){
+	
+		$('#ball').css('top', yy);
 		
+		if(yy >= $('#spielfeld').height()){yspeed *= -1;}
+		else if(yy <0){
+			yspeed = Math.abs(yspeed);
+		}
+		yy += yspeed;
+		console.log(yy);
 	}
 		
 	$('#spielfeld').bind('mousemove',function(mouseevent){
