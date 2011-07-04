@@ -53,7 +53,7 @@ void websocketOnMessage(WebSocketConnection con, String msg){
     entferneSpielerMitConnection(con);
     do_update = true;
   }
-  if (do_update) updateBall(msg);
+  if (do_update) updateBall(msg,con);
 }
 
 void websocketOnOpen(WebSocketConnection con){
@@ -61,3 +61,4 @@ void websocketOnOpen(WebSocketConnection con){
   addSpieler(con);
 }
   
+
