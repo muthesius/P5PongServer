@@ -76,6 +76,9 @@ $(function(){
 	}
 	
 	
+	/**
+	 * Ab hier dann alles für den Ball
+	 */
 	var hit_fuse = false;
 	var hitEvent = jQuery.Event('hit');
 	hitEvent.hit = false;
@@ -86,6 +89,10 @@ $(function(){
 	
 	function hideBall(){
 	  $('#ball').addClass('hidden');
+	}
+	
+	function showBall(){
+	  $('#ball').removeClass('hidden');
 	}
 	
 	function stopBall(){
@@ -187,11 +194,14 @@ $(function(){
 		if(mouseevent.target!=$('#spielfeld')[0]) return;
 		mouseevent.stopPropagation();
 		mouseevent.stopImmediatePropagation();
-		var set_height = mouseevent.offsetY/$(this).height()*100
-		$('#spieler').css('top',set_height+"%")
+		var set_height = mouseevent.offsetY-$('#spieler').height()/2
+		$('#spieler').css('top',set_height+"px")
 		return false;
 	})
 	
+	/**
+	 * Und die restliche Steuerungen
+	 */
 	$('#open').click(function(){
 		openSocket();
 	})
@@ -200,16 +210,17 @@ $(function(){
 		closeSocket();
 	})
 	
+	$(this).bind('hit',function(event){
+		console.log("hit! successful?",event.hit)
+	})
+  
+  /**
+   * dieses Eventbinding stellt sicher, dass die Socket geschlossen wird,
+   * wenn der User das Fenster schließt
+   */
 	window.onbeforeunload = function() {
 		closeSocket()
 	};
-	
-	// $(document).click(shootBall)
-	
-	/**
-	 * Fertig mit deklarieren: und ab geht die post:
-	 */
-	//resetBall();
 	
 	/// ENDE Script
 });
