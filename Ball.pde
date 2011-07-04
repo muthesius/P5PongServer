@@ -1,27 +1,27 @@
 class Ball{
-  float x,y;
-  int xspeed,yspeed;
-  int direction = 0;
+  float y       = 0.5;
+  float yspeed  = 0;
+  int direction = 1;
+  
   Spieler spieler;
   
   Ball(String init,Spieler spieler){
     this.spieler = spieler;
     String[] params = init.split(",");
-    if (params.length<5) return;
-    this.x         = parseFloat(params[0]);
-    this.y         = parseFloat(params[1]);
-    this.xspeed    = parseInt(params[2]);
-    this.yspeed    = parseInt(params[3]);
-    this.direction = parseInt(params[4]);
+    if (params.length<3) return;
+    this.y            = parseFloat(params[0]);
+    this.yspeed       = parseFloat(params[1]);
+    this.direction    = parseInt  (params[2]);
   }
   
+  int side(){return this.direction;}
+  
   String toString(){
-    return "{\"x\":"+this.x+","+
-            "\"y\":"+this.y+","+
-            "\"xspeed\":"+this.xspeed+","+
+    return "{\"y\":"+this.y+","+
             "\"yspeed\":"+this.yspeed+","+
             "\"direction\":"+this.direction+","+
             "\"spieler\":\""+this.spieler.name()+"\""+
            "}";
   }
 }
+

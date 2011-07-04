@@ -176,17 +176,16 @@ $(function(){
 	function ballIstRaus(){
 		stopBall();
 		
-	  var which_side = $('#ball').position().left>$('#spieler').position().left
-		var y_pos = $('#ball').position().top/$('#spielfeld').height()
-		var x_pos = $('#ball').position().left/$('#spielfeld').width()
-		var spieler = "testspieler"
-		var xspeed = (which_side)?1:-1;
+		// erstelle ein profil des Balls:
+		var y_pos = $('#ball').position().top/$('#spielfeld').height() || 0.5; // normalize y position
+		var y_speed = yspeed; // send over the y speed
 		
-		var yspeed = 1;
-		var angle = yspeed;
+	  var which_side = $('#ball').position().left>$('#spieler').position().left; // normalize x-position
+		var direction = (which_side)?1:-1; // where do wwe go?
 		
-		var paket = [x_pos,y_pos,xspeed,yspeed,xspeed,spieler];
+		var paket = [y_pos,y_speed,direction];
 		
+		// und schicke das paket mit den ball daten an den server. von dort geht es an den richtigen nachbarn
 		ws.send("finished!"+paket.join(","))
 		
 		
