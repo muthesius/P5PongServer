@@ -42,6 +42,12 @@ String getHostname(WebSocketConnection conn) {
 
 void killConnections(){
   socket.broadcast("CLOSE");
+  // Stelle sicher, dass alle Sockets geschlossen wurden:
+  try {
+  	for (Spieler s : mannschaft) {
+  		s.conn.close();
+  	}
+  } catch ( Exception e){} // Brute Froce.
   mannschaft.clear();
 }
 

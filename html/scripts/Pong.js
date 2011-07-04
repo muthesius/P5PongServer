@@ -29,8 +29,10 @@ $(function(){
 		};
 
 		// oh, it did close
-		ws.onerror = function (e) {
+		ws.onclose = function (e) {
 		  console.log('WebSocket did close ',e);
+		  stopBall();
+		  hideBall();
 		};
 	
 		// Log errors
@@ -64,6 +66,7 @@ $(function(){
 	
 	function closeSocket(){
 		hideBall();
+		if(!ws)return; // FIXED: kleiner Fehler beim neuladen der Seite, falls ws null: einfach return
 		ws.send('byebye');
 		ws.onclose = function () {}; // disable onclose handler first
 	  ws.close()
