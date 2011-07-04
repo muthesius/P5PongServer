@@ -60,7 +60,7 @@ void addSpieler( WebSocketConnection conn ) {
     println("spieler schon vorhanden");
   }
   if (mannschaft.size()==1){
-    ball = new Ball("0,0.5,1,0,1",mannschaft.get(0));
+    ball = new Ball("0.5,"+random(-4,4)+",1",mannschaft.get(0));
     conn.send("go!"+ball); // shoot off the game on the first player
   }
   println(mannschaft);
