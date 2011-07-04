@@ -40,25 +40,8 @@ $(function(){
 		  console.log('WebSocket Error ' + error);
 		};
 
-		// Nacrichten, die von dem server kommen werden hier verwaltet:
-		ws.onmessage = function (e) {
-			console.log(e.data);
-		  if (e.data.split("!")[0]=="go") {
-				//console.log("bang!")
-				console.log(e.data.split("!")[1]);
-				
-				shootBall(jQuery.parseJSON(e.data.split("!")[1]));
-			}
-			else if (e.data=="stop!") {
-				// stoppe das spiel
-				
-			}
-			else if (e.data=="spieler_weg!") {
-				// stoppe das spiel
-				
-			}
-			
-		};
+		// Nacrichten, die von dem server kommen werden hier verarbeitet:
+		ws.onmessage = onMessage
 		
 		// sende einen login-versuch:
     // ws.send("login:jens")
@@ -72,6 +55,25 @@ $(function(){
 	  ws.close()
 	}
 	
+	/**
+	 * Verarbeite die Nachrichten vom Server:
+	 */
+	function onMessage(e){
+		console.log(e.data);
+	  if (e.data.split("!")[0]=="go") {
+			//console.log("bang!")
+      // console.log(e.data.split("!")[1]);
+			var ball = jQuery.parseJSON(e.data.split("!")[1])
+			shootBall(ball);
+		}
+		else if (e.data=="stop!") {
+			// stoppe das spiel
+			stopBall();
+		}
+		else if (e.data=="spieler_weg!") {
+			// ein spieler ist weg!
+		}
+	}
 	
 	
 	var hit_fuse = false;
