@@ -6,7 +6,10 @@
 import muthesius.net.*;
 import org.webbitserver.*;
 
+// Die Verbindung ist eine WebSocket
 WebSocketP5 socket;
+
+// Unsere Mannschaft eine ArrayList:
 ArrayList<Spieler> mannschaft = new ArrayList<Spieler>();
 
 PFont font;
@@ -28,10 +31,12 @@ void stop(){
   socket.stop();
 }
 
-
 void mousePressed(){
   killConnections();
 }
+
+
+/** Netzwerkangelegenheiten: **/
 
 static Ball ball = null; 
 
@@ -53,9 +58,5 @@ void websocketOnMessage(WebSocketConnection con, String msg){
 void websocketOnOpen(WebSocketConnection con){
   println("A client joined");
   addSpieler(con);
-  if (mannschaft.size()==1){
-    ball = new Ball("0,0.5,1,0,1",mannschaft.get(0));
-    con.send("go!"+ball); // shoot off the game on the first player
-  }
 }
   
